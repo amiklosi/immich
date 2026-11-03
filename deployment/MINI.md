@@ -1,6 +1,9 @@
 # mini: Unstarred search and rate-and-advance shortcuts
 
-Fork: <https://github.com/amiklosi/immich>, branch `mini/unstarred-search`.
+Fork: <https://github.com/amiklosi/immich>, custom branch `mini`.
+Keep `main` as untouched upstream. Rebase `mini` onto each deployed upstream
+release; preserve exact deployed revisions using tags such as `v3.3.5-mini.2`.
+Do not move existing deployment tags after rebasing.
 Based on Immich `v3.3.5` (upstream commit `8303cb117e197c700332b33b61b45314c9cc5bb4`).
 
 Build/image identifier: **v3.3.5-mini.2**. The upstream server version remains
@@ -92,7 +95,7 @@ For a new release, set `NEXT` to its tag, then replay only our local commits:
 NEXT=vX.Y.Z # replace with the desired release tag
 git fetch upstream --tags
 git branch backup/mini-before-upgrade
-git rebase --onto "$NEXT" v3.3.5 mini/unstarred-search
+git rebase --onto "$NEXT" v3.3.5 mini
 ```
 
 Use a new backup branch name each time. On later upgrades, replace `v3.3.5` with
@@ -103,5 +106,7 @@ server. Update `.env`'s `IMMICH_VERSION` and any upstream Compose changes so the
 server and machine-learning versions remain aligned. Database migrations can make
 rollback to an older upstream image require restoring the database.
 
-After a rebase, publish the custom branch with `git push --force-with-lease`.
+After a rebase, publish the custom branch with `git push --force-with-lease origin mini`.
+After a successful deployment, tag the exact source commit used to build it and
+push that tag separately. Do not tag a later documentation-only commit instead.
 No image is published to a registry; it is built locally on mini.

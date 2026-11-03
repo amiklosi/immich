@@ -3,7 +3,7 @@
 FROM ghcr.io/immich-app/immich-server:v3.3.5@sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6
 RUN rm -rf /build/www
 COPY . /build/www
-ARG MINI_SOURCE_COMMIT=mini/unstarred-search
+ARG MINI_SOURCE_COMMIT=mini
 ENV IMMICH_BUILD=v3.3.5-mini.2 \
     IMMICH_BUILD_IMAGE=local/immich-server:v3.3.5-mini.2 \
     IMMICH_SOURCE_REF=v3.3.5-mini.2 \

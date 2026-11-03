@@ -39,6 +39,7 @@
     onAction: OnAction;
     onUndoDelete?: OnUndoDelete;
     onClose?: () => void;
+    onRated?: (assetId: string) => void;
     isPlayingOriginalVideo: boolean;
     setPlayOriginalVideo: (value: boolean) => void;
   }
@@ -52,6 +53,7 @@
     onAction,
     onUndoDelete = undefined,
     onClose,
+    onRated,
     isPlayingOriginalVideo = false,
     setPlayOriginalVideo,
   }: Props = $props();
@@ -76,7 +78,9 @@
     onAction: () => setPlayOriginalVideo(!isPlayingOriginalVideo),
   });
 
-  const Actions = $derived(getAssetActions($t, { ...asset, stackPrimaryAssetId: stack?.primaryAssetId }, album));
+  const Actions = $derived(
+    getAssetActions($t, { ...asset, stackPrimaryAssetId: stack?.primaryAssetId }, album, onRated),
+  );
   const StackActions = $derived(getStackActions($t, stack, asset));
   const sharedLink = getSharedLink();
 </script>

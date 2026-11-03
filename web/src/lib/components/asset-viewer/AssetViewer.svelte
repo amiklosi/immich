@@ -185,7 +185,10 @@
     await faceManager.getAssetFaces(asset.id);
   };
 
+  let viewerMounted = false;
+
   onMount(() => {
+    viewerMounted = true;
     syncAssetViewerOpenClass(true);
     const slideshowStateUnsubscribe = slideshowState.subscribe((value) => {
       if (value === SlideshowState.PlaySlideshow) {
@@ -213,6 +216,7 @@
   });
 
   onDestroy(() => {
+    viewerMounted = false;
     activityManager.reset();
     assetViewerManager.resetPanelState();
     syncAssetViewerOpenClass(false);
@@ -525,6 +529,19 @@
         {stack}
         preAction={handlePreAction}
         onAction={handleAction}
+        onRated={(ratedAssetId) => {
+          // A save can finish after the user navigates or closes the viewer.
+          if (
+            viewerMounted &&
+            showNavigation &&
+            !assetViewerManager.isShowEditor &&
+            !assetViewerManager.isFaceEditMode &&
+            assetViewerManager.isViewing &&
+            asset.id === ratedAssetId
+          ) {
+            navigateAsset('next');
+          }
+        }}
         {onUndoDelete}
         onClose={onClose ? () => onClose(stack?.primaryAssetId ?? asset.id) : undefined}
         {isPlayingOriginalVideo}

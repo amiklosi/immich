@@ -144,6 +144,7 @@ export const getAssetActions = (
   $t: MessageFormatter,
   asset: AssetResponseDto & { stackPrimaryAssetId?: string },
   album?: AlbumResponseDto,
+  onRated?: (assetId: string) => void,
 ) => {
   const sharedLink = getSharedLink();
   const authUser = authManager.authenticated ? authManager.user : undefined;
@@ -223,7 +224,15 @@ export const getAssetActions = (
     title: $t('rate_asset'),
     description: $t('rate_asset_description'),
     $if: () => isOwner && authManager.preferences.ratings.enabled,
-    onAction: ({ event }) => handleRate(asset, event instanceof KeyboardEvent ? Number(event.key) : NaN),
+    onAction: async ({ event }) => {
+      if (event instanceof KeyboardEvent && event.repeat) {
+        return;
+      }
+      const rating = event instanceof KeyboardEvent ? Number(event.key) : NaN;
+      if ((await handleRate(asset, rating)) && rating >= 1 && rating <= 5) {
+        onRated?.(asset.id);
+      }
+    },
     shortcuts: [0, 1, 2, 3, 4, 5].map((key) => ({ key: String(key) })),
   };
 
@@ -464,24 +473,35 @@ const handleUnfavorite = async (asset: AssetResponseDto) => {
   }
 };
 
-const handleRate = async (asset: AssetResponseDto, rating: number) => {
+const ratingRequests = new Set<string>();
+
+const handleRate = async (asset: AssetResponseDto, rating: number): Promise<boolean> => {
   const $t = await getFormatter();
 
   if (Number.isNaN(rating)) {
     toastManager.info($t('rate_asset_description'));
-    return;
+    return false;
+  }
+
+  if (ratingRequests.has(asset.id)) {
+    return false;
   }
 
   const newRating = rating === 0 ? null : rating;
   if (asset.exifInfo && asset.exifInfo.rating === newRating) {
-    return;
+    return true;
   }
 
+  ratingRequests.add(asset.id);
   try {
     const response = await updateAsset({ id: asset.id, updateAssetDto: { rating: newRating } });
     eventManager.emit('AssetUpdate', response);
+    return true;
   } catch (error) {
     handleError(error, $t('errors.unable_to_set_rating'));
+    return false;
+  } finally {
+    ratingRequests.delete(asset.id);
   }
 };
 

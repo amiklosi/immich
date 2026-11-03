@@ -1,0 +1,13 @@
+# Build context MUST be web/build (the prebuilt frontend), not the repository root.
+# Preserve the exact stock v3.3.5 backend; replace only its static web assets.
+FROM ghcr.io/immich-app/immich-server:v3.3.5@sha256:485d546a2e31d6a8b4db8423fcba5c109de8c218d93410af115fd1ccfc4352a6
+RUN rm -rf /build/www
+COPY . /build/www
+ARG MINI_SOURCE_COMMIT=mini/unstarred-search
+ENV IMMICH_BUILD=v3.3.5-mini.2 \
+    IMMICH_BUILD_IMAGE=local/immich-server:v3.3.5-mini.2 \
+    IMMICH_SOURCE_REF=v3.3.5-mini.2 \
+    IMMICH_SOURCE_COMMIT=${MINI_SOURCE_COMMIT} \
+    IMMICH_SOURCE_URL=https://github.com/amiklosi/immich/commit/${MINI_SOURCE_COMMIT}
+LABEL com.zekalogic.immich.web-patch="mini.2" \
+      com.zekalogic.immich.upstream="8303cb117e197c700332b33b61b45314c9cc5bb4"

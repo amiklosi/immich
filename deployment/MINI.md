@@ -1,5 +1,8 @@
 # mini: Unstarred search and rate-and-advance shortcuts
 
+For a fresh session, start with [RESUME.md](../RESUME.md) for deployment state,
+patch locations, history, and operational cautions.
+
 Fork: <https://github.com/amiklosi/immich>, custom branch `mini`.
 Keep `main` as untouched upstream. Rebase `mini` onto each deployed upstream
 release; preserve exact deployed revisions using tags such as `v3.3.5-mini.2`.
